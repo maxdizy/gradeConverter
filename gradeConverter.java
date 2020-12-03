@@ -135,9 +135,19 @@ public class gradeConverter{
   }
 
   //method to print report print report cards
-  public static void printReportCards(List <String> nameList, Dictionary <String, Object> names, Dictionary <String, String> data){
-    for (String name : nameList){
-      System.out.print(name + names.get(name));
+  public static void printReportCards(List <String> names, List <String> subjects, List <String> grades, int index){
+    List <String> naughtyList = new ArrayList <String>();
+    for (i = 0; i<index; i++){
+        name = names.get(i);
+        for (i = 0; i < names.size(); i++){
+          if (names.get(i).equals(name)){
+            if (!(naughtyList.includes(name))){
+              System.out.print("\nStudent Name: " + names.get(i));
+              System.out.print("\nSubject: " + subjects.get(i));
+              System.out.print("\nGrade: " + grades.get(i));
+            }
+          }
+        }
       }
     }
 
@@ -146,13 +156,13 @@ public class gradeConverter{
     //variables
     Scanner scan = new Scanner(System.in);
     boolean pass = false;
+    boolean keepName = false;
+    int index = 0;
 
     //initialize list
-    List <String> nameList = new ArrayList <String> ();
-
-    //initialize dictionaries
-    Dictionary <String, Object> names = new Hashtable <String, Object> ();
-    Dictionary <String, String> data = new Hashtable <String, String> ();
+    List <String> names = new ArrayList <String>();
+    List <String> subjects = new ArrayList <String>();
+    List <String> grades = new ArrayList <String>();
 
     //welcome
     System.out.println("Welcome to the Grade Book");
@@ -163,11 +173,18 @@ public class gradeConverter{
       boolean check = false;
       String name = "";
       while(!check){
-        System.out.print("\nPlease enter the students name to continue: ");
-        name = scan.nextLine().toLowerCase();
-        check = checkName(name);
-        if (check){
-          nameList.add(name);
+        if (keepName){
+          names.add(names.get(names.size() - 1));
+          check = true;
+        }
+        else{
+          System.out.print("\nPlease enter the students name to continue: ");
+          name = scan.nextLine().toLowerCase();
+          check = checkName(name);
+          if (check){
+            names.add(name);
+          index += 1
+          }
         }
       }
 
@@ -178,6 +195,9 @@ public class gradeConverter{
         System.out.print("\nPlease enter the subject you would like to input a grade for: ");
         subject = scan.nextLine().toLowerCase();
         check = checkSubject(subject);
+        if (check){
+          subjects.add(subject);
+        }
       }
 
       //grade
@@ -189,22 +209,27 @@ public class gradeConverter{
         check = checkGrade(grade);
         if (check){
           grade = convertGrade(grade);
+          grades.add(grade);
         }
       }
-
-      //store data
-      data.put(subject, grade);
-      names.put(name, data);
 
       //continue
       check = false;
       while(!check){
-        System.out.print("\nPlease enter \'n\' to input another student and \'p\' to print report cards: ");
+        System.out.print("\nenter \'c\' to input another grade for " + names.get(names.size() - 1) + ", enter \'n\' to input another student, or enter \'print\' to print report cards: ");
         String answer = scan.nextLine().toLowerCase();
-        if (answer.equals("n")){
+        if (answer.equals("c")){
+          keepName = true;
           check = true;
         }
-        else if (answer.equals("p")){
+
+        else if (answer.equals("n")){
+          keepName = false;
+          check = true;
+        }
+
+        else if (answer.equals("print")){
+          printReportCards(names, subjects, grades, index);
           pass = true;
           check = true;
         }
@@ -213,8 +238,5 @@ public class gradeConverter{
         }
       }
     }
-
-    printReportCards(nameList, names, data);
-
   }
 }
