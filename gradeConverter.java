@@ -6,6 +6,14 @@ gradeConverter
 Grade converter that takes a percent grade for a selected subject and creates a report card for all students with letter grades*/
 
 import java.util.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class gradeConverter{
 
@@ -33,7 +41,7 @@ public class gradeConverter{
   //method to check if input is a vilid subject
   public static boolean checkSubject(String subject){
     boolean confirmed = false;
-    String[] possible = {"english", "fucntions", "calculus", "math", "religion", "chemistry", "physics", "science", "computer science", "robotics", "civics and careers", "music", "art"};
+    String[] possible = {"english", "functions", "calculus", "math", "religion", "chemistry", "physics", "science", "computer science", "robotics", "civics", "careers", "music", "art"};
     for (String valid : possible){
       confirmed = false;
         if (subject.equals(valid)){
@@ -135,21 +143,30 @@ public class gradeConverter{
   }
 
   //method to print report print report cards
-  public static void printReportCards(List <String> names, List <String> subjects, List <String> grades, int index){
+  public static void printReportCards(List <String> names, List <String> subjects, List <String> grades, List <String> comments){
     List <String> naughtyList = new ArrayList <String>();
-    for (i = 0; i<index; i++){
-        name = names.get(i);
-        for (i = 0; i < names.size(); i++){
+    boolean firstOccurance = true;
+    for (String name : names){
+      firstOccurance = true;
+        for (int i = 0; i<names.size(); i++){
           if (names.get(i).equals(name)){
-            if (!(naughtyList.includes(name))){
-              System.out.print("\nStudent Name: " + names.get(i));
-              System.out.print("\nSubject: " + subjects.get(i));
-              System.out.print("\nGrade: " + grades.get(i));
+            if (!(naughtyList.contains(name))){
+              //print data
+              if (firstOccurance){
+                System.out.print("\n\n\nStudent Name: " + name);
+                System.out.print("\n-----------------------");
+                System.out.print("\n" + subjects.get(i) + " | " + grades.get(i) + " | " + name + " " + comments.get(i));
+                firstOccurance = false;
+              }
+            else{
+              System.out.print("\n" + subjects.get(i) + " | " + grades.get(i) + " | " + name + " " + comments.get(i));
             }
           }
         }
       }
+      naughtyList.add(name);
     }
+  }
 
   //main method
   public static void main(String[] args){
@@ -157,12 +174,12 @@ public class gradeConverter{
     Scanner scan = new Scanner(System.in);
     boolean pass = false;
     boolean keepName = false;
-    int index = 0;
 
     //initialize list
     List <String> names = new ArrayList <String>();
     List <String> subjects = new ArrayList <String>();
     List <String> grades = new ArrayList <String>();
+    List <String> comments = new ArrayList <String>();
 
     //welcome
     System.out.println("Welcome to the Grade Book");
@@ -183,7 +200,6 @@ public class gradeConverter{
           check = checkName(name);
           if (check){
             names.add(name);
-          index += 1
           }
         }
       }
@@ -229,12 +245,29 @@ public class gradeConverter{
         }
 
         else if (answer.equals("print")){
-          printReportCards(names, subjects, grades, index);
+          //random comments
+          Random rand = new Random();
+          Path listPath = Paths.get("C:\\Users\\max\\Code\\Grade Converter\\teacherComments.txt");
+          Charset charset = StandardCharsets.UTF_8;
+          try{
+            List <String> commentList = Files.readAllLines(listPath, charset);
+            String comment = commentList.get(rand.nextInt(129));
+            for (String times : names){
+              comment = commentList.get(rand.nextInt(129));
+              comments.add(comment);
+            }
+          }
+          catch(IOException ex){
+            System.out.format("I/O Exception", ex);
+          }
+
+          //print
+          printReportCards(names, subjects, grades, comments);
           pass = true;
           check = true;
         }
         else{
-          System.out.print("Sorry I don\'t understand please enter \'n\' or \'p\' and try again: ");
+          System.out.print("Sorry I don\'t understand please enter \'c\', \'n\' or \'print\' and try again: ");
         }
       }
     }
